@@ -1,0 +1,23 @@
+services:
+  app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://telemetry:telemetry@postgres:5432/stations?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: telemetry
+      POSTGRES_PASSWORD: telemetry
+      POSTGRES_DB: stations
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U telemetry -d stations"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+    volumes:
+      - station-data:/var/lib/postgresql/data
+volumes:
+  station-data:

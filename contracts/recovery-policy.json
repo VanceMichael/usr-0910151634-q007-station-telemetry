@@ -1,0 +1,1 @@
+{"version":"station-recovery-1","offline_after_seconds":90,"healthy_streak":3,"allowed_lateness_seconds":300,"quality":{"minimum_satellites":4,"maximum_pdop":6.0}}
