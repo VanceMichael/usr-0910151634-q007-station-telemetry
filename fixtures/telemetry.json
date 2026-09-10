@@ -1,0 +1,1 @@
+{"events":[{"event_id":"evt-a1","station_id":"station-demo","source_id":"link-a","source_seq":41,"observed_at":"2026-09-04T06:00:00Z","received_at":"2026-09-04T06:00:02Z","metrics":{"satellites":8,"pdop":1.7}}]}
