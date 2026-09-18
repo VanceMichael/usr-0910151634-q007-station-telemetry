@@ -1,23 +1,47 @@
 services:
-  app:
-    build: .
-    environment:
-      DATABASE_URL: postgresql://telemetry:telemetry@postgres:5432/stations?sslmode=disable
-    depends_on:
-      postgres:
-        condition: service_healthy
   postgres:
     image: postgres:16-alpine
     environment:
       POSTGRES_USER: telemetry
       POSTGRES_PASSWORD: telemetry
       POSTGRES_DB: stations
+    ports:
+      - "5432:5432"
     healthcheck:
+      # 数据库探活：只有 pg_isready 成功后，迁移与应用才会启动。
       test: ["CMD-SHELL", "pg_isready -U telemetry -d stations"]
       interval: 2s
       timeout: 2s
       retries: 15
     volumes:
+      # 持久卷：整套环境重启后水位、缺口集合与事件全部延续。
       - station-data:/var/lib/postgresql/data
+
+  migrate:
+    # 一次性迁移作业：执行嵌入式 SQL 迁移后退出（service migrate）。
+    # 应用自身启动时也会幂等执行迁移，二者由 schema_migrations 账本去重。
+    build: .
+    command: ["/service", "migrate"]
+    environment:
+      DATABASE_URL: postgresql://telemetry:telemetry@postgres:5432/stations?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://telemetry:telemetry@postgres:5432/stations?sslmode=disable
+      HTTP_ADDR: ":8080"
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
 volumes:
   station-data:

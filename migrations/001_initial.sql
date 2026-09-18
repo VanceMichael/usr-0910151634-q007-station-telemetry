@@ -1,2 +1,1 @@
-CREATE TABLE IF NOT EXISTS telemetry_events (id BIGSERIAL PRIMARY KEY, event_id TEXT NOT NULL UNIQUE, station_id TEXT NOT NULL, source_id TEXT NOT NULL, source_seq BIGINT NOT NULL, observed_at TIMESTAMPTZ NOT NULL, received_at TIMESTAMPTZ NOT NULL, payload JSONB NOT NULL, UNIQUE (station_id, source_id, source_seq));
-CREATE TABLE IF NOT EXISTS station_projection (station_id TEXT PRIMARY KEY, state TEXT NOT NULL, revision BIGINT NOT NULL, updated_at TIMESTAMPTZ NOT NULL);
+../internal/store/migrations/001_initial.sql
