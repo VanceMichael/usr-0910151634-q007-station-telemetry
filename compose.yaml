@@ -3,6 +3,26 @@ services:
     build: .
     environment:
       DATABASE_URL: postgresql://telemetry:telemetry@postgres:5432/stations?sslmode=disable
+      CONTRACT_PATH: /etc/station-telemetry/recovery-policy.json
+      SWEEP_INTERVAL_SECONDS: "10"
+    volumes:
+      - ./contracts:/etc/station-telemetry:ro
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+  migrate:
+    image: migrate/migrate:4
+    command:
+      - -path=/migrations
+      - -database=postgres://telemetry:telemetry@postgres:5432/stations?sslmode=disable
+      - up
+    volumes:
+      - ./migrations:/migrations:ro
     depends_on:
       postgres:
         condition: service_healthy
